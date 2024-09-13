@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.jagan.emailservice.dtos.SendEmailEventDto;
 
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 
 
 import javax.mail.Authenticator;
@@ -12,6 +13,7 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import java.util.Properties;
 
+@Component
 public class SendEmailEventConsumer {
     private ObjectMapper objectMapper;
 
@@ -22,7 +24,7 @@ public class SendEmailEventConsumer {
     @KafkaListener(topics = "send_Email", groupId = "emailService")
     public void handleSendEmailEvent(String message) throws JsonProcessingException {
 
-        try{
+
             SendEmailEventDto sendEmailEventDto = objectMapper.readValue(message, SendEmailEventDto.class);
 
             String to = sendEmailEventDto.getTo();
@@ -42,15 +44,14 @@ public class SendEmailEventConsumer {
             Authenticator auth = new Authenticator() {
                 //override the getPasswordAuthentication method
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication("jackjagan1995@gmail.com", "lcovmuwkdbirkkzh");
+                    return new PasswordAuthentication(from, "lcovmuwkdbirkkzh");
                 }
             };
             Session session = Session.getInstance(props, auth);
 
             EmailUtil.sendEmail(session, to, subject, body);
-        } catch (Exception e){
-            System.out.println("Something went wrong.");
-        }
+
+
 
 
     }
